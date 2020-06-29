@@ -1,0 +1,175 @@
+.relative{position: relative;overflow: hidden;}
+.noback{background: none}
+.back {
+  background: linear-gradient(#020b25, #0e2566, #020b25); /* 标准的语法 */
+}
+.border-all {
+  border: 1px solid #269fed73;
+  box-shadow: 0 0 3px #269fed;
+}
+.border-bottom {
+  border-bottom: 1px solid #269fed73;
+  box-shadow: 0 0 3px #269fed;
+}
+.shadow {
+  box-shadow: 0 0 3px #269fed;
+}
+.no-shadow {
+  box-shadow: none;
+}
+.overflow-hidden {
+  overflow: hidden;
+}
+/* 单行文本 超出部分···展示 */
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* 展示隐藏部分 大概多展示3 4 个字节 */
+.ellipsis:hover{
+  overflow: visible;
+  text-overflow: inherit;	
+}
+.border-box {
+  box-sizing: border-box;
+}
+.flex {
+  display: flex;
+}
+.data{
+  width: 100%;
+  height: 100%;
+}
+.hidden {
+  display: none;
+}
+.bs-timer {
+  color: #fff;
+  font-size: 14px;
+  line-height: 64px;
+  width: 260px;
+  position: absolute;
+  top: 30px;
+  right: 50%;
+  margin-right: -180px;
+  /* margin-right: -340px; */
+}
+.c-yellow {
+  color: yellow;
+}
+.c-blue {
+  color: rgba(93, 255, 249, 1);
+}
+.c-red {
+  color: #ec3131;
+}
+.c-green {
+  color: #06b106;
+}
+/* 标题部分 */
+.data>.data-title{
+  width: 100%;
+  height: 105px;
+  padding: 0px 0 35px 0;
+}
+.data>.data-title>.title-new{
+  width: 100%;
+  height: 111px;
+  padding-top: 23px;
+  font-size:35px;
+  color:#fff;
+  text-align:center;
+  background: url('../img/top_tittle.png') center no-repeat;
+}
+.inter_mapTab .inter_title {
+  font-size: 33px;
+}
+.inter_mapTab .inter_desctitle {
+  font-size: 12px;
+}
+/* 主体部分 */
+.global_box{
+  width:100%;
+  height: calc(100% - 111px);
+  padding: 0 2%;
+  color: #fff;
+}
+.box-top {
+  height:65%;padding-top:10px;
+}
+.box-top .top-left {
+  flex:0 1 75%;margin-right:15px;
+  background: url('../img/bg_mid.png') no-repeat;
+  background-size: 100% 160%;
+  background-position: 0 60%;
+}
+/* 地图右侧数据展示框 */
+.bs-show-box {
+  position:absolute;
+  width:210px;
+  top:10px;
+  left:10px;
+}
+.bs-show-box .bs-sons {
+  width:100%;
+  height:96px;
+  background: url(../img/bg.png) no-repeat center;
+  background-size: 100% 100%;
+  margin-bottom:5px;
+  box-sizing: border-box;
+  padding: 15px;
+}
+.bs-show-box .bs-sons .bs-title{
+  font-size: 16px;
+}
+.bs-show-box .bs-sons .bs-subtext-num {
+  font-family: 'timerFont';
+  font-size: 30px;
+  text-align: center;
+  color: lightblue;
+}
+/* 滚动列表 */
+.list {
+  position: absolute;
+  width: 300px;
+  height: 385px;
+  overflow: hidden;
+  top: 10px;
+  right: 10px;
+}
+.box-top .top-right {
+  flex:0 1 25%;
+}
+.top-right .top-right-title {
+  height:45px;font-size:18px;padding:10px;
+}
+.top-right .top-right-wrapper {
+  width:100%;height:calc(100% - 45px);
+}
+.top-right-wrapper .top-right-sons {
+  width:100%;height:50%;
+}
+
+.box-bottom {
+  height:35%;padding-top:10px;
+}
+.box-bottom .bottom-wapper {
+  height:100%; display:flex;padding:10px 0;
+}
+.bottom-wapper .bs-sons {
+  flex: 1;
+  box-sizing: border-box;
+  padding: 5px;
+  border-right: 2px solid #269fed73;
+}
+.bottom-wapper .bs-sons:last-child {
+  border-right: 0;
+}
+/* 走马灯 */
+.carouse-title {
+  height:30px;line-height:30px;font-size:18px;padding:0 5px;
+}
+.carouse-box {
+  width:200px;height:50px;padding:10px;font-size:14px;
+}
