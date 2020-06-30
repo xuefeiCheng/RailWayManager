@@ -486,6 +486,11 @@ export default {
           menuId: 'dataAnalysis',
           menuName: '数据分析',
           parentMenu: 'groundWater'
+        },
+        {
+          menuId: 'userManager',
+          menuName: '用户管理',
+          parentMenu: 'groundWater'
         }
 
       ]

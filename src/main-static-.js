@@ -169,6 +169,7 @@ let menus = [
       { componentURL: 'groundWater/facility', name: '监控设备', icon: 'ios-cube', menuId: 'facility' },
       { componentURL: 'groundWater/map', name: '地图平台', icon: 'ios-cube', menuId: 'map' },
       { componentURL: 'groundWater/dataAnalysis', name: '数据分析', icon: 'ios-cube', menuId: 'dataAnalysis' },
+      { componentURL: 'groundWater/userManager', name: '用户管理', icon: 'ios-cube', menuId: 'userManager' },
       { componentURL: 'groundWater/demo11', name: '自动踢网、关停用户', icon: 'ios-cube', menuId: 'stopuser' },
       { componentURL: 'groundWater/demo12', name: '准确率', icon: 'ios-cube', menuId: 'zql' },
       { componentURL: 'groundWater/demo13', name: '召回率/查全率', icon: 'ios-cube', menuId: 'zhl' },
