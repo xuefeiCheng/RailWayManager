@@ -14,10 +14,10 @@
         "name": "地下水监控",
         "componentURL": "container/MainOne",
         "children": [
-          { "componentURL": "groundWater/facility", "name": "监控设备", "icon": "ios-cube", "menuId": "facility" },
-          { "componentURL": "groundWater/map", "name": "地图平台", "icon": "ios-cube", "menuId": "map" },
-          { "componentURL": "groundWater/dataAnalysis", "name": "数据分析", "icon": "ios-cube", "menuId": "dataAnalysis" },
-          { "componentURL": "groundWater/userManager", "name": "用户管理", "icon": "ios-cube", "menuId": "userManager" }
+          { "componentURL": "groundWater/facility", "name": "监控设备", "icon": "ios-cube-outline", "menuId": "facility" },
+          { "componentURL": "groundWater/map", "name": "地图平台", "icon": "ios-pin-outline", "menuId": "map" },
+          { "componentURL": "groundWater/dataAnalysis", "name": "数据分析", "icon": "ios-podium-outline", "menuId": "dataAnalysis" },
+          { "componentURL": "groundWater/userManager", "name": "用户管理", "icon": "ios-person-outline", "menuId": "userManager" }
         ]
       }
 ]
