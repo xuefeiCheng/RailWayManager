@@ -1,12 +1,12 @@
 <template>
   <div class="classify flex space-between border-none" ref="divWidth">
     <div class="box-left flex flex-direction-coloum space-between">
-      <div class="box-left-top border-normal">
-        <div class="box-title border-bottom-normal">分析图</div>
+      <div class="box-left-top border-normal Relative">
+        <div class="arrow arrow-left" @click="test()"><span class="iconfont icon-icon-test"></span></div>
         <div class="box-content" id="char"></div>
+        <div class="arrow arrow-right arrow-disable" @click="test()"><span class="iconfont icon-icon-test1"></span></div>
       </div>
       <div class="box-left-bottom border-normal">
-        <div class="box-title border-bottom-normal">模式计算</div>
         <div class="box-content">
           <Form :model="search" :label-width="80">
             <Row>
@@ -30,23 +30,6 @@
         @on-change.self="handlePage" @on-page-size-change.self="handleSize"/>
     </div>
         </div>
-      </div>
-    </div>
-    <div class="box-right border-normal">
-        <div class="box-title border-bottom-normal">点位列表</div>
-        <div class="box-content">
-          <Menu active-name="1-1-2" :open-names="['1','1-1']" mode="vertical" width="auto" >
-            <Submenu name="1">
-              <template slot="title">
-                蒙华
-              </template>
-              <Submenu name="1-1">
-                  <template slot="title">中条山隧道</template>
-                  <MenuItem name="1-1-1">西北张井机</MenuItem>
-                  <MenuItem name="1-1-2">东北张井机</MenuItem>
-              </Submenu>
-          </Submenu>
-        </Menu>
       </div>
     </div>
   </div>
@@ -135,6 +118,9 @@ export default {
     this.init()
   },
   methods: {
+    test () {
+      alert('点击了我')
+    },
     init () { // 初始化列表
       this.page.current = 1
       this.loading = true
@@ -176,11 +162,7 @@ export default {
       this.data = data.list
       this.page.total = data.count
       this.loading = false
-      this.axios.post('/gettime').then((res) => {
-        if (res.code === 200) {
-          this.drawChart('char', res.data)
-        }
-      })
+      this.drawChart('char', {})
     },
     drawChart (id, data) {
       let charts = this.$echarts.init(document.getElementById(id))
@@ -268,6 +250,9 @@ export default {
 
 <style lang="css" scoped>
 /* 通用部分 */
+.Relative {
+  position: relative;
+}
 .flex {
   display: flex;
 }
@@ -289,12 +274,46 @@ export default {
 }
 .border-bottom-normal{border-bottom: 1px solid #dcdee2;}
 /* 布局部分 */
-.box-left{width: 76%;height: 100%;}
+.box-left{width: 100%;height: 100%;}
 .box-left-top{height: 49%;}
 .box-left-bottom{height: 49%;}
 .box-right{width: 23%;}
 .box-title {height: 40px;line-height: 40px;padding-left: 10px;}
-.box-content {height: calc(100% - 40px);width: 100%;padding: 10px;overflow-y: auto;}
+/* .box-content {height: calc(100% - 40px);width: 100%;padding: 10px;overflow-y: auto;} */
+.box-content {height: 100%;width: 100%;padding: 10px;overflow-y: auto;}
+/* 图表翻页 */
+.arrow {
+  position: absolute;
+  z-index: 999;
+  top: 50%;
+  margin-top: -25px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  border-radius: 50%;
+  color: #fff;
+  background: #eee;
+  cursor: pointer;
+}
+.arrow:hover {
+  background: rgb(48, 47, 47);
+  color: #eee;
+}
+.arrow-left {
+  left: 10px;
+}
+.arrow-right {
+  right: 10px;
+}
+.arrow-disable {
+  pointer-events: none;
+}
+.arrow-disable:hover {
+  color: #fff;
+  background: #eee;
+}
 /*面板分割*/
 .classify {
   padding: 10px;
