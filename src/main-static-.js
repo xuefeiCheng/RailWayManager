@@ -183,6 +183,19 @@ let menus = [
       { componentURL: 'groundWater/demo21', name: '漫游号码异常监测', icon: 'ios-cube', menuId: 'myhmyc' },
       { componentURL: 'groundWater/demo22', name: '异常漫入号码监测', icon: 'ios-cube', menuId: 'ycmrhm' }
     ]
+  },
+  {
+    'menuId': 'ground',
+    'name': '地下水',
+    'componentURL': 'container/MainOne',
+    'children': [
+      { 'componentURL': 'ground/waterLevel', 'name': '水位监测', 'icon': 'ios-cube-outline', 'menuId': 'waterLevel' },
+      { 'componentURL': 'ground/flow', 'name': '流量监测', 'icon': 'ios-pin-outline', 'menuId': 'flow' },
+      { 'componentURL': 'ground/soil', 'name': '墒情监测', 'icon': 'ios-podium-outline', 'menuId': 'soil' },
+      { 'componentURL': 'ground/rainfall', 'name': '降雨监测', 'icon': 'ios-person-outline', 'menuId': 'rainfall' },
+      { 'componentURL': 'ground/base', 'name': '基础信息', 'icon': 'ios-person-outline', 'menuId': 'base' },
+      { 'componentURL': 'ground/datareport', 'name': '数据报告', 'icon': 'ios-person-outline', 'menuId': 'datareport' }
+    ]
   }
 ]
 let res = {

@@ -1,23 +1,15 @@
 [
-    {
-        "menuId": "systemManage",
-        "name":"系统管理",
-        "componentURL": "container/MainOne",
-        "children": [
-            {"icon": "ios-person-outline", "name": "用户管理", "componentURL": "systemManage/userManage", "menuId": "userManage"},
-            {"icon": "ios-people-outline", "name": "角色管理", "componentURL": "systemManage/roleManage", "menuId": "roleManage"},
-            {"icon": "ios-book-outline", "name": "日志管理", "componentURL": "systemManage/logManage", "menuId": "logManage"}
-          ]
-    },
-    {
-        "menuId": "groundWater",
-        "name": "地下水监控",
-        "componentURL": "container/MainOne",
-        "children": [
-          { "componentURL": "groundWater/facility", "name": "监控设备", "icon": "ios-cube-outline", "menuId": "facility" },
-          { "componentURL": "groundWater/map", "name": "地图平台", "icon": "ios-pin-outline", "menuId": "map" },
-          { "componentURL": "groundWater/dataAnalysis", "name": "数据分析", "icon": "ios-podium-outline", "menuId": "dataAnalysis" },
-          { "componentURL": "groundWater/userManager", "name": "用户管理", "icon": "ios-person-outline", "menuId": "userManager" }
-        ]
-      }
+  {
+    "menuId": "ground",
+    "name": "地下水",
+    "componentURL": "container/MainOne",
+    "children": [
+      { "componentURL": "ground/waterLevel", "name": "水位监测", "icon": "ios-cube-outline", "menuId": "waterLevel" },
+      { "componentURL": "ground/flow", "name": "流量监测", "icon": "ios-pin-outline", "menuId": "flow" },
+      { "componentURL": "ground/soil", "name": "墒情监测", "icon": "ios-podium-outline", "menuId": "soil" },
+      { "componentURL": "ground/rainfall", "name": "降雨监测", "icon": "ios-person-outline", "menuId": "rainfall" },
+      { "componentURL": "ground/base", "name": "基础信息", "icon": "ios-person-outline", "menuId": "base" },
+      { "componentURL": "ground/datareport", "name": "数据报告", "icon": "ios-person-outline", "menuId": "datareport" }
+    ]
+  }
 ]

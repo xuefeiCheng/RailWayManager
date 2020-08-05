@@ -3,7 +3,7 @@
     <Menu mode="horizontal" theme="dark" width="auto" :active-name="currentPath.split('/')[1]" ref="menuHead">
       <div class="layout-logo" style="cursor: pointer;">
         <!-- <img src="static/img/logo3.png" alt="Paris" width="40" height="40" style="margin-top:0.5rem;"> -->
-        <span class="header-logoText">铁路建设项目环保水远程监测系统</span>
+        <span class="header-logoText">TLXM监测系统</span>
       </div>
       <Icon @click="changeStateCollapsed" :class="rotateIcon" type="md-menu" size="24"></Icon>
       <div class="layout-nav">
@@ -261,7 +261,7 @@ export default {
   width: 18em;
   height: 30px;
   /* background:#031c55; */
-  width: 22em;
+  width: 12em;
   height: 100%;
   border-radius: 3px;
   float: left;

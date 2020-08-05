@@ -491,8 +491,42 @@ export default {
           menuId: 'userManager',
           menuName: '用户管理',
           parentMenu: 'groundWater'
+        },
+        // 地下水
+        {
+          menuId: 'ground',
+          menuName: '地下水'
+        },
+        {
+          menuId: 'waterLevel',
+          menuName: '水位监测',
+          parentMenu: 'ground'
+        },
+        {
+          menuId: 'flow',
+          menuName: '流量监测',
+          parentMenu: 'ground'
+        },
+        {
+          menuId: 'soil',
+          menuName: '墒情监测',
+          parentMenu: 'ground'
+        },
+        {
+          menuId: 'rainfall',
+          menuName: '降雨监测',
+          parentMenu: 'ground'
+        },
+        {
+          menuId: 'base',
+          menuName: '基础信息',
+          parentMenu: 'ground'
+        },
+        {
+          menuId: 'datareport',
+          menuName: '数据报告',
+          parentMenu: 'ground'
         }
-
       ]
       const name = 'admin'
       Cookies.set('Admin-Token', token)
