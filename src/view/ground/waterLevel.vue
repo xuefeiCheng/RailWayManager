@@ -11,8 +11,16 @@
           <Form :model="search" :label-width="80">
             <Row>
               <Col span="8">
-                <FormItem label="设备ID">
-                  <Input v-model="search.psoname" placeholder="请输入要查询的设备ID..."></Input>
+                <FormItem label="站点名称">
+                  <Input v-model="search.psoname" placeholder="请输入要查询的站点名称..."></Input>
+                </FormItem>
+              </Col>
+              <Col span="8">
+                <FormItem label="统计类型">
+                  <Select v-model="search.type">
+                    <Option value="1">日均值</Option>
+                    <Option value="2">小时值</Option>
+                  </Select>
                 </FormItem>
               </Col>
               <Col span="8">
@@ -24,7 +32,7 @@
             </Row>
         </Form>
 
-    <Table border highlight-row :loading="loading" :columns="columns" :data="data"></Table>
+    <Table border highlight-row :loading="loading" :columns="columns" :data="data" @on-row-dblclick="draw"></Table>
     <div class="tab_footer">
       <Page :total="page.total" :current="page.current" :page-size="page.size" show-total show-elevator show-sizer
         @on-change.self="handlePage" @on-page-size-change.self="handleSize"/>
@@ -44,31 +52,39 @@ export default {
       maxWidth: 0,
       theme2: 'light',
       search: {
-        psoname: ''
+        psoname: '',
+        type: '1'
       },
       columns: [
         {
-          title: '设备ID',
-          key: 'psoname'
+          type: 'index',
+          width: '45',
+          align: 'center'
         }, {
-          title: '名称',
+          title: '记录时间',
           key: 'cellid'
         }, {
-          title: '设备类型',
+          title: '站点',
+          key: 'psoname'
+        }, {
+          title: '测点',
           key: 'lacid'
         }, {
-          title: 'IMEI号',
-          key: 'createtime'
+          title: '水位绝对值(m)',
+          key: 'poistion'
         }, {
-          title: '所属隧道',
-          key: 'createtime'
+          title: '初始偏差(m)',
+          key: 'poistion'
         }, {
-          title: '状态',
-          key: 'createtime'
+          title: '对上次变化(m)',
+          key: 'poistion'
+        }, {
+          title: '累计变化(m)',
+          key: 'poistion'
         }, {
           title: '操作',
           key: 'action',
-          width: 150,
+          width: 200,
           align: 'center',
           render: (h, params) => {
             return h('div', [
@@ -86,7 +102,7 @@ export default {
                     this.searchModal = true
                   }
                 }
-              }, '查阅'),
+              }, '图表参数'),
               h('Button', {
                 props: {
                   type: 'warning',
@@ -121,40 +137,44 @@ export default {
     test () {
       alert('点击了我')
     },
+    draw (data) {
+      console.log(data)
+      alert('双击了')
+    },
     init () { // 初始化列表
       this.page.current = 1
       this.loading = true
       let data = {
         list: [
           {
-            psoname: '15600209318',
+            psoname: '茅坪山隧道进口测站',
             cellid: '2020-03-16 14:31:25',
-            lacid: '龙岩市',
-            createtime: '话费欠费'
+            lacid: '山顶村1#泉眼水位',
+            poistion: '125.3'
           },
           {
-            psoname: '18516836716',
+            psoname: '高坪隧道1#斜井测站',
             cellid: '2020-03-18 14:31:25',
-            lacid: '厦门',
-            createtime: '号码违规'
+            lacid: '1#机井水位测点',
+            poistion: '152.3'
           },
           {
-            psoname: '17611756390',
+            psoname: '茅坪山隧道进口测站',
             cellid: '2020-03-19 11:31:25',
             lacid: '福州',
-            createtime: '号码违规'
+            poistion: '120.3'
           },
           {
-            psoname: '18500715269',
+            psoname: '茅坪山隧道进口测站',
             cellid: '2020-03-20 10:32:25',
             lacid: '厦门',
-            createtime: '号码违规'
+            poistion: '36.2'
           },
           {
-            psoname: '13051391287',
+            psoname: '茅坪山隧道进口测站',
             cellid: '2020-03-28 14:31:25',
             lacid: '泉州',
-            createtime: '号码违规'
+            poistion: '12.2'
           }
         ],
         count: 5
@@ -166,13 +186,10 @@ export default {
     },
     drawChart (id, data) {
       let charts = this.$echarts.init(document.getElementById(id))
+      charts.clear()
       const colors = ['#5793f3', '#d14a61']
       let option = {
         color: colors,
-        title: {
-          text: '中条山隧道-广德村机井1#-监控分析图',
-          x: 'center'
-        },
         tooltip: {
           trigger: 'axis',
           axisPointer: {type: 'cross'}
