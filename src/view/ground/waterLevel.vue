@@ -34,12 +34,25 @@
 
     <Table border highlight-row :loading="loading" :columns="columns" :data="data" @on-row-dblclick="draw"></Table>
     <div class="tab_footer">
+      <!-- :pageSizeOpts="pageSizeOpts" 自定义页码大小 -->
       <Page :total="page.total" :current="page.current" :page-size="page.size" show-total show-elevator show-sizer
         @on-change.self="handlePage" @on-page-size-change.self="handleSize"/>
     </div>
         </div>
       </div>
     </div>
+    <!-- 图表参数弹框 -->
+    <Modal
+      title="图表参数"
+      v-model="selectModal"
+      footer-hide
+      :closable="false">
+      <Table border highlight-row  :columns="selectcolumns" :data="selectdata" ref="test"></Table>
+      <div class="tab_footer">
+        <Page :total="selectpage.total" :current="selectpage.current" :page-size="selectpage.size" show-total show-elevator
+          @on-change.self="handlePage" @on-page-size-change.self="handleSize"/>
+      </div>
+    </Modal>
   </div>
 </template>
 
@@ -50,11 +63,46 @@ export default {
   data () {
     return {
       maxWidth: 0,
-      theme2: 'light',
       search: {
         psoname: '',
         type: '1'
       },
+      selectModal: false, // 图表参数弹框
+      selectcolumns: [
+        {
+          type: 'index',
+          width: '45',
+          align: 'center'
+        }, {
+          title: '测点',
+          key: 'lacid'
+        }, {
+          title: '操作',
+          key: 'action',
+          width: 100,
+          align: 'center',
+          render: (h, params) => {
+            return h('div', [
+              h('checkbox', {
+                props: {
+                  label: '选择',
+                  value: this.$refs.test.$refs.tbody.objData[params.index]._isChecked
+                },
+                style: {
+                },
+                on: {
+                  'on-change': (val) => {
+                    console.log(val) // 选择的状态 true false
+                    console.log(params) // 选择行的数据
+                    this.$refs.test.$refs.tbody.objData[params.index]._isChecked = val
+                    console.log(this.$refs.test.$refs.tbody.objData)
+                  }
+                }
+              }, '选择')
+            ])
+          }
+        }
+      ],
       columns: [
         {
           type: 'index',
@@ -99,7 +147,7 @@ export default {
                 on: {
                   click: () => {
                     // 详情信息弹框展示
-                    this.searchModal = true
+                    this.selectModal = true
                   }
                 }
               }, '图表参数'),
@@ -122,11 +170,18 @@ export default {
       ],
       loading: true,
       data: [],
+      selectdata: [],
       page: {
         total: 0,
         size: 10,
         current: 1
-      }
+      },
+      selectpage: {
+        total: 0,
+        size: 5,
+        current: 1
+      },
+      pageSizeOpts: [5, 10, 20]
     }
   },
   mounted () {
@@ -141,8 +196,20 @@ export default {
       console.log(data)
       alert('双击了')
     },
+    cancel (name) { // 复选框全部重置为 false
+      // 设置已勾选项为空或者勾选true
+      console.log(this.selectdata)
+      console.log(this.$refs[name].$refs.tbody.objData)
+      for (let i = 0, le = this.selectdata.length; i < le; i++) {
+        this.$refs[name].$refs.tbody.objData[i]._isChecked = false
+      }
+    },
+    handleSelect () {
+      // 选择图表
+    },
     init () { // 初始化列表
       this.page.current = 1
+      this.selectpage.current = 1
       this.loading = true
       let data = {
         list: [
@@ -180,7 +247,9 @@ export default {
         count: 5
       }
       this.data = data.list
+      this.selectdata = data.list
       this.page.total = data.count
+      this.selectpage.total = data.count
       this.loading = false
       this.drawChart('char', {})
     },
