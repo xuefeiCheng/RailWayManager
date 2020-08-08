@@ -256,15 +256,27 @@ export default {
     drawChart (id, data) {
       let charts = this.$echarts.init(document.getElementById(id))
       charts.clear()
-      const colors = ['#5793f3', '#d14a61']
+      const colors = ['#5793f3', '#d14a61', '#9E87FF', '#73DDFF', '#fe9a8b', '#F56948', '#9E87FF']
       let option = {
         color: colors,
         tooltip: {
           trigger: 'axis',
-          axisPointer: {type: 'cross'}
+          axisPointer: {type: 'cross'},
+          formatter: function (params) {
+            // 根据 seriesIndex 找到 series数据
+            var seriesdata = option.series
+            let tip = ''
+            if (params != null || params.length > 0) {
+              tip += params[0].name + '</br>'
+              for (let i = 0, le = params.length; i < le; i++) {
+                tip += params[i].marker + seriesdata[i].showName + '(' + params[i].seriesName + ')' + ':' + params[i].value + '</br>'
+              }
+            }
+            return tip
+          }
         },
         legend: {
-          data: ['水位', '降水量'],
+          data: ['水位', '降雨量', '墒情', '流量'],
           x: 'center',
           y: 'bottom'
         },
@@ -281,8 +293,6 @@ export default {
           {
             type: 'value',
             name: '水位',
-            min: 0,
-            max: 250,
             position: 'left',
             axisLine: {
               lineStyle: {
@@ -290,16 +300,54 @@ export default {
               }
             },
             axisLabel: {
+              formatter: '{value} m'
+            }
+          },
+          {
+            show: true, // 是否展示 - 降水量
+            type: 'value',
+            name: '降雨量',
+            position: 'right',
+            offset: 10,
+            splitLine: {
+              show: false
+            },
+            axisLine: {
+              lineStyle: {
+                color: colors[1]
+              }
+            },
+            axisLabel: {
               formatter: '{value} ml'
             }
           },
           {
+            show: false, // 是否展示 - 墒情
             type: 'value',
-            name: '降水量',
-            min: 0,
-            max: 250,
+            name: '墒情',
             position: 'right',
             offset: 10,
+            splitLine: {
+              show: false
+            },
+            axisLine: {
+              lineStyle: {
+                color: colors[1]
+              }
+            },
+            axisLabel: {
+              formatter: '{value} ml'
+            }
+          },
+          {
+            show: false, // 是否展示 - 流量
+            type: 'value',
+            name: '流量',
+            position: 'right',
+            offset: 10,
+            splitLine: {
+              show: false
+            },
             axisLine: {
               lineStyle: {
                 color: colors[1]
@@ -313,14 +361,29 @@ export default {
         series: [
           {
             name: '水位',
-            type: 'bar',
-            data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
+            type: 'line',
+            showName: '名称1',
+            data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3],
+            color: colors[0]
           },
           {
-            name: '降水量',
-            type: 'line',
+            name: '降雨量',
+            type: 'bar',
+            showName: '名称2',
             yAxisIndex: 1,
-            data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
+            data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3],
+            color: colors[2]
+            // color: function (params) {
+            //   return colors[params.dataIndex]
+            // }
+          },
+          {
+            name: '墒情',
+            type: 'line',
+            showName: '名称4',
+            yAxisIndex: 2,
+            data: [6, 9, 190, 30, 29, 7, 17, 182, 487, 18, 6, 3],
+            color: colors[4]
           }
         ]
       }
