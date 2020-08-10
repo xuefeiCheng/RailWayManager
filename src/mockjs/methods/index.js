@@ -318,6 +318,25 @@ export function scrollList () {
   })
   return res.data
 }
+// 地下水 - 水位界面数据
+export function waterLevelData () {
+  let res = Mock.mock({
+    'times|7': [function () {
+      return Mock.mock({
+        'time': Ranndom.date('yyyy/MM/dd')
+      }).time
+    }],
+    'json': {
+      'type|1-4': 1, // 类型 1-水位 2-墒情 3-降雨 4-流量
+      'data|7': [function () {
+        return Mock.mock({
+          'number|6-60': 1
+        }).number
+      }]
+    }
+  })
+  return res
+}
 export default {
   getgtList: () => {
     return {
@@ -370,6 +389,13 @@ export default {
       code: 200,
       msg: 'ok',
       data: scrollList()
+    }
+  },
+  getWaterLevelData () {
+    return {
+      code: 200,
+      msg: 'ok',
+      data: waterLevelData()
     }
   }
 }

@@ -58,16 +58,32 @@
 
 <script>
 // import $ from 'jquery'
-import {} from '@/utils/methods'
+import {createColorCode} from '@/utils/methods'
 export default {
   data () {
     return {
+      colors: [
+        '#2F9323',
+        '#D9B63A',
+        '#2E2AA4',
+        '#9F2E61',
+        '#4D670C',
+        '#BF675F',
+        '#1F814A',
+        '#357F88',
+        '#673509',
+        '#310937',
+        '#1B9637',
+        '#F7393C'],
       maxWidth: 0,
       search: {
         psoname: '',
         type: '1'
       },
+      custType: '', // 自定义图表参数类型
+      baseType: '1', // 本页面必要类型
       selectModal: false, // 图表参数弹框
+      chartsSeries: [], // 动态变化的图表series
       selectcolumns: [
         {
           type: 'index',
@@ -76,6 +92,30 @@ export default {
         }, {
           title: '测点',
           key: 'lacid'
+        }, {
+          title: '类型',
+          key: 'type',
+          render: (h, params) => {
+            // 类型 1-水位 2-墒情 3-降雨 4-流量
+            let txt = ''
+            switch (params.row.type) {
+              case '1':
+                txt = '水位'
+                break
+              case '2':
+                txt = '墒情'
+                break
+              case '3':
+                txt = '降雨'
+                break
+              case '4':
+                txt = '流量'
+                break
+              default:
+                txt = ''
+            }
+            return h('span', txt)
+          }
         }, {
           title: '操作',
           key: 'action',
@@ -92,10 +132,113 @@ export default {
                 },
                 on: {
                   'on-change': (val) => {
-                    console.log(val) // 选择的状态 true false
-                    console.log(params) // 选择行的数据
                     this.$refs.test.$refs.tbody.objData[params.index]._isChecked = val
-                    console.log(this.$refs.test.$refs.tbody.objData)
+                    // 选择的类型
+                    let custType = params.row.type
+                    // 操作行id
+                    let id = params.row.id
+                    if (val) {
+                      if (custType !== this.baseType) {
+                        // 新增自定义数据
+                        if (this.custType) {
+                          // 已经勾选一条其他类型的数据，禁止再次勾选
+                          this.$Message.error('非水位数据仅可选择一条')
+                          // 勾选状态更新为之前状态
+                          this.$nextTick(() => {
+                            this.$refs.test.$refs.tbody.objData[params.index]._isChecked = !val
+                          })
+                          return false
+                        } else {
+                          this.custType = custType
+                          // 绘制自定义数据 异步请求数据
+                          let txt = ''
+                          let yAxisIndex
+                          switch (this.custType) {
+                            case '1':
+                              txt = '水位'
+                              yAxisIndex = 0
+                              break
+                            case '2':
+                              txt = '墒情'
+                              yAxisIndex = 2
+                              break
+                            case '3':
+                              txt = '降雨量'
+                              yAxisIndex = 1
+                              break
+                            case '4':
+                              txt = '流量'
+                              yAxisIndex = 3
+                              break
+                          }
+                          this.chartsSeries.push({
+                            name: txt,
+                            type: txt === '降雨量' ? 'bar' : 'line',
+                            showName: txt,
+                            yAxisIndex: yAxisIndex,
+                            id: id,
+                            color: createColorCode('#' + Math.floor(Math.random() * 16777215).toString(16), this.colors),
+                            data: [
+                              Math.ceil(Math.random() * 100),
+                              Math.ceil(Math.random() * 100),
+                              Math.ceil(Math.random() * 100),
+                              Math.ceil(Math.random() * 100),
+                              Math.ceil(Math.random() * 100),
+                              Math.ceil(Math.random() * 100),
+                              Math.ceil(Math.random() * 100),
+                              Math.ceil(Math.random() * 100),
+                              Math.ceil(Math.random() * 100),
+                              Math.ceil(Math.random() * 100),
+                              Math.ceil(Math.random() * 100),
+                              Math.ceil(Math.random() * 100)
+                            ]
+                          })
+                        }
+                      } else {
+                        // 新增基础类型数据
+                        // 绘制 基础类型数据 异步请求数据
+                        this.chartsSeries.push({
+                          name: '水位',
+                          type: 'line',
+                          showName: Math.ceil(Math.random() * 100),
+                          yAxisIndex: 0,
+                          id: id,
+                          color: createColorCode('#' + Math.floor(Math.random() * 16777215).toString(16), this.colors),
+                          data: [
+                            Math.ceil(Math.random() * 1000),
+                            Math.ceil(Math.random() * 100),
+                            Math.ceil(Math.random() * 100),
+                            Math.ceil(Math.random() * 100),
+                            Math.ceil(Math.random() * 100),
+                            Math.ceil(Math.random() * 100),
+                            Math.ceil(Math.random() * 100),
+                            Math.ceil(Math.random() * 100),
+                            Math.ceil(Math.random() * 100),
+                            Math.ceil(Math.random() * 100),
+                            Math.ceil(Math.random() * 100),
+                            Math.ceil(Math.random() * 100)
+                          ]
+                        })
+                      }
+                    } else {
+                      // 删除操作
+                      if (custType !== this.baseType) {
+                        this.custType = '' // 删除自定义数据 处理前端保存数据
+                      }
+                      this.chartsSeries.map((val, index) => {
+                        if (val.id === id) {
+                          this.chartsSeries.splice(index, 1)
+                          return true
+                        }
+                      })
+                    }
+                    this.drawChart('char', this.chartsSeries)
+                    // 选择 图表参数
+                    // 校验 type type为本页面主类型，放行 可多个新增
+                    // type 为其他类型，先校验 现在展示的类型是什么， 如果是现在展示的类型 要提示先删除之前的 才能新增这个
+                    // 如果是未展示的新类型 提示 先删除之前的
+                    // true addChar
+                    // false deleChar 删除 要根据测点的唯一标识 进行判断
                   }
                 }
               }, '选择')
@@ -207,7 +350,16 @@ export default {
     handleSelect () {
       // 选择图表
     },
-    init () { // 初始化列表
+    initChar () {
+      // 初始话 图表数据
+    },
+    addChar () {
+      // 增加图表参数
+    },
+    deleChar () {
+      // 删除图表参数
+    },
+    init () { // 初始化table表格数据
       this.page.current = 1
       this.selectpage.current = 1
       this.loading = true
@@ -217,31 +369,41 @@ export default {
             psoname: '茅坪山隧道进口测站',
             cellid: '2020-03-16 14:31:25',
             lacid: '山顶村1#泉眼水位',
-            poistion: '125.3'
+            poistion: '125.3',
+            type: '1',
+            id: 2
           },
           {
             psoname: '高坪隧道1#斜井测站',
             cellid: '2020-03-18 14:31:25',
             lacid: '1#机井水位测点',
-            poistion: '152.3'
+            poistion: '152.3',
+            type: '2',
+            id: 3
           },
           {
             psoname: '茅坪山隧道进口测站',
             cellid: '2020-03-19 11:31:25',
             lacid: '福州',
-            poistion: '120.3'
+            poistion: '120.3',
+            type: '3',
+            id: 4
           },
           {
             psoname: '茅坪山隧道进口测站',
             cellid: '2020-03-20 10:32:25',
             lacid: '厦门',
-            poistion: '36.2'
+            poistion: '36.2',
+            type: '4',
+            id: 5
           },
           {
             psoname: '茅坪山隧道进口测站',
             cellid: '2020-03-28 14:31:25',
             lacid: '泉州',
-            poistion: '12.2'
+            poistion: '12.2',
+            type: '1',
+            id: 6
           }
         ],
         count: 5
@@ -251,7 +413,12 @@ export default {
       this.page.total = data.count
       this.selectpage.total = data.count
       this.loading = false
-      this.drawChart('char', {})
+      this.drawChart('char', [])
+      this.axios.get('/getWaterLevelData').then((res) => {
+        if (res.code === 200) {
+          console.log(res)
+        }
+      })
     },
     drawChart (id, data) {
       let charts = this.$echarts.init(document.getElementById(id))
@@ -304,7 +471,7 @@ export default {
             }
           },
           {
-            show: true, // 是否展示 - 降水量
+            show: this.custType === '3', // 是否展示 - 降水量
             type: 'value',
             name: '降雨量',
             position: 'right',
@@ -322,7 +489,7 @@ export default {
             }
           },
           {
-            show: false, // 是否展示 - 墒情
+            show: this.custType === '2', // 是否展示 - 墒情
             type: 'value',
             name: '墒情',
             position: 'right',
@@ -340,7 +507,7 @@ export default {
             }
           },
           {
-            show: false, // 是否展示 - 流量
+            show: this.custType === '4', // 是否展示 - 流量
             type: 'value',
             name: '流量',
             position: 'right',
@@ -358,36 +525,39 @@ export default {
             }
           }
         ],
-        series: [
+        series: data.length > 0 ? data : [
           {
             name: '水位',
             type: 'line',
             showName: '名称1',
+            id: 1,
             data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3],
-            color: colors[0]
-          },
-          {
-            name: '降雨量',
-            type: 'bar',
-            showName: '名称2',
-            yAxisIndex: 1,
-            data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3],
-            color: colors[2]
-            // color: function (params) {
-            //   return colors[params.dataIndex]
-            // }
-          },
-          {
-            name: '墒情',
-            type: 'line',
-            showName: '名称4',
-            yAxisIndex: 2,
-            data: [6, 9, 190, 30, 29, 7, 17, 182, 487, 18, 6, 3],
-            color: colors[4]
+            color: colors[3]
           }
+          // {
+          //   name: '降雨量',
+          //   type: 'bar',
+          //   showName: '名称2',
+          //   yAxisIndex: 1,
+          //   data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3],
+          //   color: colors[0]
+          //   // color: function (params) {
+          //   //   return colors[params.dataIndex]
+          //   // }
+          // },
+          // {
+          //   name: '水位',
+          //   type: 'line',
+          //   showName: '名称4',
+          //   yAxisIndex: 2,
+          //   data: [6, 9, 190, 30, 29, 7, 17, 182, 487, 18, 6, 3],
+          //   color: colors[4]
+          // }
         ]
       }
-      charts.setOption(option)
+      // let yAxis = charts.getOption().yAxis
+      charts.setOption(option, true)
+      this.chartsSeries = charts.getOption().series
       window.addEventListener('resize', function () {
         charts.resize()
       })

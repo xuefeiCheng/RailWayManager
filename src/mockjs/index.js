@@ -8,5 +8,6 @@ Mock.mock('/getAreatop', 'post', Methods.getAreatop)
 Mock.mock('/gettime', 'post', Methods.gettime)
 Mock.mock('/getScrollList', 'post', Methods.getScrollList)
 Mock.mock('/gethyposition', 'get', Methods.gethyposition)
+Mock.mock('/getWaterLevelData', 'get', Methods.getWaterLevelData)
 
 export default Mock

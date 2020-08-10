@@ -1,3 +1,4 @@
+import $ from 'jquery'
 // 处理时间格式（展示字段）
 // 原格式为20190403152300 输出为2019-04-03 15:23:00
 // 原格式为201904031523 输出为2019-04-03 15:23
@@ -251,4 +252,17 @@ export function dateToyymmdd (date) {
   let M = date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1
   let D = date.getDate() < 10 ? '0' + date.getDate() : date.getDate()
   return Y + '' + M + '' + D
+}
+
+/**
+ * 随机颜色
+ */
+export function createColorCode (code, colorArr) {
+  if ($.inArray(code, colorArr) === -1 && code.length > 6) {
+    colorArr[0] = code
+  } else {
+    code = '#' + Math.floor(Math.random() * 16777215).toString(16)
+    createColorCode(code, colorArr)
+  }
+  return colorArr
 }
