@@ -73,6 +73,19 @@ export function GetDateStrByF (AddDayCount, f) {
   return y + f + m + f + d
 }
 
+// 在基准时间 前进 后退
+
+export function GetDateStrByBF (baseTime, AddDayCount, f) {
+  var dd = new Date(baseTime)
+  dd.setDate(dd.getDate() + AddDayCount) // 获取AddDayCount天后的日期
+  var y = dd.getFullYear()
+  if (y < 1900) y = y + 1900
+  var m = dd.getMonth() + 1 // 获取当前月份的日期
+  if (m < 10) m = '0' + m
+  var d = dd.getDate()
+  if (d < 10) d = '0' + d
+  return y + f + m + f + d
+}
 // 分隔符
 export function getYear () {
   var dd = new Date()

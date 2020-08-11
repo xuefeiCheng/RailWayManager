@@ -2,9 +2,9 @@
   <div class="classify flex space-between border-none" ref="divWidth">
     <div class="box-left flex flex-direction-coloum space-between">
       <div class="box-left-top border-normal Relative">
-        <div class="arrow arrow-left" @click="test()"><span class="iconfont icon-icon-test"></span></div>
+        <div class="arrow arrow-left" @click="handleSearch('forward')"><span class="iconfont icon-icon-test"></span></div>
         <div class="box-content" id="char"></div>
-        <div class="arrow arrow-right arrow-disable" @click="test()"><span class="iconfont icon-icon-test1"></span></div>
+        <div class="arrow arrow-right" :class="step === 0 ? 'arrow-disable' : ''" @click="handleSearch('backward')"><span class="iconfont icon-icon-test1"></span></div>
       </div>
       <div class="box-left-bottom border-normal">
         <div class="box-content">
@@ -58,7 +58,7 @@
 
 <script>
 // import $ from 'jquery'
-import {createColorCode} from '@/utils/methods'
+import {createColorCode, GetDateStrByF, GetDateStrByBF} from '@/utils/methods'
 export default {
   data () {
     return {
@@ -80,6 +80,9 @@ export default {
         psoname: '',
         type: '1'
       },
+      startTime: new Date(GetDateStrByF(-7, '/')),
+      endTime: new Date(GetDateStrByF(0, '/')),
+      step: 0, // 翻页步长
       custType: '', // 自定义图表参数类型
       baseType: '1', // 本页面必要类型
       selectModal: false, // 图表参数弹框
@@ -346,6 +349,21 @@ export default {
       for (let i = 0, le = this.selectdata.length; i < le; i++) {
         this.$refs[name].$refs.tbody.objData[i]._isChecked = false
       }
+    },
+    handleSearch (type) {
+      // 查询条件：站点名称 类型 page pageSize [测点id, 测点id] 时间
+      // 上一页 时间范围向前 +7
+      // 下一页 时间范围向后 +7 且不能超过今天
+      if (type === 'forward') {
+        this.step -= 7
+        this.endTime = GetDateStrByBF(this.startTime, 0, '/')
+        this.startTime = GetDateStrByBF(this.startTime, -7, '/')
+      } else if (type === 'backward') {
+        this.step += 7
+        this.startTime = GetDateStrByBF(this.endTime, 0, '/')
+        this.endTime = GetDateStrByBF(this.endTime, 7, '/')
+      }
+      console.log('查询时间段为：' + this.startTime + '-' + this.endTime)
     },
     handleSelect () {
       // 选择图表
