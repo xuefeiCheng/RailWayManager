@@ -1,94 +1,175 @@
 <template>
-  <div class="classify flex space-between border-none" ref="divWidth">
-    <div class="box-left flex flex-direction-coloum space-between">
-      <div class="box-left-top border-normal">
-        <div class="box-title border-bottom-normal">分析图</div>
-        <div class="box-content" id="char"></div>
-      </div>
-      <div class="box-left-bottom border-normal">
-        <div class="box-title border-bottom-normal">模式计算</div>
-        <div class="box-content">
-          <Form :model="search" :label-width="80">
-            <Row>
-              <Col span="8">
-                <FormItem label="设备ID">
-                  <Input v-model="search.psoname" placeholder="请输入要查询的设备ID..."></Input>
-                </FormItem>
-              </Col>
-              <Col span="8">
-                <FormItem>
-                    <Button type="success"  icon="ios-search" class="searchBtn" @click="handlePage(1)">搜索</Button>
-                    <Button type="info"  icon="ios-refresh" class="searchBtn" @click="handleReset">重置</Button>
-                </FormItem>
-              </Col>
-            </Row>
-        </Form>
+  <div ref="divWidth" class="div-border">
+    <!-- 搜索框 -->
+    <Form ref="search" :model="search" :label-width="80">
+      <Row>
+        <Col span="8">
+          <FormItem label="报告名称">
+            <Input type="text" v-model="search.filename" placeholder="请输入想要查询的报告名" />
+          </FormItem>
+        </Col>
+        <Col span="8">
+          <FormItem label="报告类型">
+            <Select v-model="search.type">
+              <Option value="1">月报</Option>
+              <Option value="2">季报</Option>
+              <Option value="3">总结报告</Option>
+              <Option value="4">专题报告</Option>
+              <Option value="5">其他</Option>
+            </Select>
+          </FormItem>
+        </Col>
+        <Col span="8">
+          <FormItem label="查询时间">
+            <DatePicker type="daterange" placement="bottom-end" :options="options" placeholder="请选择想要查询的时间段"
+              style="width: 100%;" show-week-numbers @on-change="timeChange" v-model="search.time"></DatePicker>
+          </FormItem>
+        </Col>
+      </Row>
+      <Row>
+        <Col span="24" style="text-align: center;">
+          <FormItem>
+            <Button type="success" icon="ios-search" class="searchBtn">查询</Button>
+            <Button type="info"  icon="ios-refresh" class="searchBtn">重置</Button>
+            <Button type="warning" icon="ios-add-circle-outline" class="searchBtn" @click="msgModal = true">新增</Button>
+          </FormItem>
+        </Col>
+      </Row>
+    </Form>
 
-    <Table border highlight-row :loading="loading" :columns="columns" :data="data"></Table>
+    <Divider/>
+    <Table border highlight-row  :columns="columns" :data="data"></Table>
     <div class="tab_footer">
-      <Page :total="page.total" :current="page.current" :page-size="page.size" show-total show-elevator show-sizer
-        @on-change.self="handlePage" @on-page-size-change.self="handleSize"/>
-    </div>
-        </div>
+        <Page :total="page.total" :current="page.current" :page-size="page.size" show-total show-elevator
+          @on-change.self="handlePage" @on-page-size-change.self="handleSize"/>
       </div>
-    </div>
-    <div class="box-right border-normal">
-        <div class="box-title border-bottom-normal">点位列表</div>
-        <div class="box-content">
-          <Menu active-name="1-1-2" :open-names="['1','1-1']" mode="vertical" width="auto" >
-            <Submenu name="1">
-              <template slot="title">
-                蒙华
-              </template>
-              <Submenu name="1-1">
-                  <template slot="title">中条山隧道</template>
-                  <MenuItem name="1-1-1">西北张井机</MenuItem>
-                  <MenuItem name="1-1-2">东北张井机</MenuItem>
-              </Submenu>
-          </Submenu>
-        </Menu>
-      </div>
-    </div>
+
+      <!-- 新增编辑查看 -->
+    <Modal
+      title="报告信息"
+      v-model="msgModal"
+      :closable="false">
+      <Form
+        ref="editform"
+        :model="editform"
+        :label-width="100"
+      >
+        <FormItem label="报告名称">
+          <Input type="text" v-model="editform.filename" placeholder="报告名称"></Input>
+        </FormItem>
+        <FormItem label="报告类型">
+          <Select v-model="editform.type">
+            <Option value="1">月报</Option>
+            <Option value="2">季报</Option>
+            <Option value="3">总结报告</Option>
+            <Option value="4">专题报告</Option>
+            <Option value="5">其他</Option>
+          </Select>
+        </FormItem>
+        <FormItem label="请选择文件" prop="file">
+          <Upload ref="uploadBtn" :before-upload="beforeUpload" action="" :accept="add.accept" :format="add.format">
+            <Button icon="ios-cloud-upload-outline">请选择报告文件</Button>
+            <!-- <p style="margin-left: 10px; color: red;">(.txt文件) 格式：号码,添加原因[逗号为英文字符]</p> -->
+          </Upload>
+          <div v-if="add.data.fileName !== null">已选中文件: {{ add.data.fileName }}</div>
+        </FormItem>
+      </Form>
+    </Modal>
   </div>
 </template>
 
 <script>
-// import $ from 'jquery'
-import {} from '@/utils/methods'
+import {GetDateStrByF} from '@/utils/methods'
 export default {
   data () {
     return {
       maxWidth: 0,
-      theme2: 'light',
+      msgModal: false,
       search: {
-        psoname: ''
+        filename: '',
+        time: [new Date(GetDateStrByF(0, ',')), new Date(GetDateStrByF(0, ','))],
+        startTime: '',
+        endTime: '',
+        type: '1'
+      },
+      editform: {
+        filename: '',
+        type: '1'
+      },
+      add: {
+        accept: '.txt',
+        format: ['.txt'],
+        data: {
+          file: null,
+          fileName: null
+        }
+      },
+      options: {
+        disabledDate (date) {
+          return date && date.valueOf() > Date.now()
+        }
       },
       columns: [
         {
-          title: '设备ID',
-          key: 'psoname'
+          type: 'index',
+          width: '45',
+          align: 'center'
         }, {
-          title: '名称',
-          key: 'cellid'
+          title: '报告名称',
+          key: 'filename'
         }, {
-          title: '设备类型',
-          key: 'lacid'
+          title: '报告类型',
+          key: 'type',
+          render: (h, params) => {
+            let txt = ''
+            switch (params.row.type) {
+              case '1':
+                txt = '月报'
+                break
+              case '2':
+                txt = '季报'
+                break
+              case '3':
+                txt = '总结报告'
+                break
+              case '4':
+                txt = '专题报告'
+                break
+              case '5':
+                txt = '其他'
+                break
+              default:
+                txt = ''
+            }
+            return h('span', txt)
+          }
         }, {
-          title: 'IMEI号',
-          key: 'createtime'
+          title: '上传日期',
+          key: 'uploadTime'
         }, {
-          title: '所属隧道',
-          key: 'createtime'
-        }, {
-          title: '状态',
-          key: 'createtime'
+          title: '上传人',
+          key: 'uploadUser'
         }, {
           title: '操作',
           key: 'action',
-          width: 150,
+          width: 200,
           align: 'center',
           render: (h, params) => {
             return h('div', [
+              h('Button', {
+                props: {
+                  type: 'success',
+                  size: 'small'
+                },
+                style: {
+                  marginRight: '10px'
+                },
+                on: {
+                  click: () => {
+                    this.msgModal = true
+                  }
+                }
+              }, '查看'),
               h('Button', {
                 props: {
                   type: 'info',
@@ -99,24 +180,19 @@ export default {
                 },
                 on: {
                   click: () => {
-                    // 详情信息弹框展示
-                    this.searchModal = true
+                    this.msgModal = true
                   }
                 }
-              }, '查阅'),
+              }, '编辑'),
               h('Button', {
                 props: {
                   type: 'warning',
                   size: 'small'
                 },
-                style: {},
                 on: {
-                  click: () => {
-                    this.logModal = true
-                    // 选择开始结束时间 导出弹框展示
-                  }
+                  click: () => {}
                 }
-              }, '导出')
+              }, '删除')
             ])
           }
         }
@@ -141,125 +217,37 @@ export default {
       let data = {
         list: [
           {
-            psoname: '15600209318',
-            cellid: '2020-03-16 14:31:25',
-            lacid: '龙岩市',
-            createtime: '话费欠费'
-          },
-          {
-            psoname: '18516836716',
-            cellid: '2020-03-18 14:31:25',
-            lacid: '厦门',
-            createtime: '号码违规'
-          },
-          {
-            psoname: '17611756390',
-            cellid: '2020-03-19 11:31:25',
-            lacid: '福州',
-            createtime: '号码违规'
-          },
-          {
-            psoname: '18500715269',
-            cellid: '2020-03-20 10:32:25',
-            lacid: '厦门',
-            createtime: '号码违规'
-          },
-          {
-            psoname: '13051391287',
-            cellid: '2020-03-28 14:31:25',
-            lacid: '泉州',
-            createtime: '号码违规'
+            'filename': '名称',
+            'type': '1',
+            'uploadTime': '2020/08/10',
+            'uploadUser': '测试'
           }
         ],
-        count: 5
+        count: 1
       }
       this.data = data.list
       this.page.total = data.count
       this.loading = false
-      this.axios.post('/gettime').then((res) => {
-        if (res.code === 200) {
-          this.drawChart('char', res.data)
-        }
-      })
     },
-    drawChart (id, data) {
-      let charts = this.$echarts.init(document.getElementById(id))
-      const colors = ['#5793f3', '#d14a61']
-      let option = {
-        color: colors,
-        title: {
-          text: '中条山隧道-广德村机井1#-监控分析图',
-          x: 'center'
-        },
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: {type: 'cross'}
-        },
-        legend: {
-          data: ['水位', '降水量'],
-          x: 'center',
-          y: 'bottom'
-        },
-        xAxis: [
-          {
-            type: 'category',
-            axisTick: {
-              alignWithLabel: true
-            },
-            data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
-          }
-        ],
-        yAxis: [
-          {
-            type: 'value',
-            name: '水位',
-            min: 0,
-            max: 250,
-            position: 'left',
-            axisLine: {
-              lineStyle: {
-                color: colors[0]
-              }
-            },
-            axisLabel: {
-              formatter: '{value} ml'
-            }
-          },
-          {
-            type: 'value',
-            name: '降水量',
-            min: 0,
-            max: 250,
-            position: 'right',
-            offset: 10,
-            axisLine: {
-              lineStyle: {
-                color: colors[1]
-              }
-            },
-            axisLabel: {
-              formatter: '{value} ml'
-            }
-          }
-        ],
-        series: [
-          {
-            name: '水位',
-            type: 'bar',
-            data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
-          },
-          {
-            name: '降水量',
-            type: 'line',
-            yAxisIndex: 1,
-            data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
-          }
-        ]
+    timeChange (value) {
+      let startTime = value[0].substr(0, 4) + value[0].substr(5, 2) + value[0].substr(8, 2) + '000000'
+      let endTime = value[1].substr(0, 4) + value[1].substr(5, 2) + value[1].substr(8, 2) + '235959'
+
+      this.search.startTime = startTime
+      this.search.endTime = endTime
+    },
+    beforeUpload (file) { // 文件导入前的处理
+      let fileType = file.name.split('.')[1]
+      if (fileType !== 'txt') {
+        this.$Notice.warning({
+          title: '文件格式不正确',
+          desc: '文件 ' + file.name + ' 格式不正确，请上传.txt文件'
+        })
+      } else {
+        this.add.data.file = file
+        this.add.data.fileName = file.name
       }
-      charts.setOption(option)
-      window.addEventListener('resize', function () {
-        charts.resize()
-      })
+      return false
     },
     handleReset () {}
   }
@@ -288,13 +276,6 @@ export default {
   border: 0 !important;
 }
 .border-bottom-normal{border-bottom: 1px solid #dcdee2;}
-/* 布局部分 */
-.box-left{width: 76%;height: 100%;}
-.box-left-top{height: 49%;}
-.box-left-bottom{height: 49%;}
-.box-right{width: 23%;}
-.box-title {height: 40px;line-height: 40px;padding-left: 10px;}
-.box-content {height: calc(100% - 40px);width: 100%;padding: 10px;overflow-y: auto;}
 /*面板分割*/
 .classify {
   padding: 10px;
@@ -322,11 +303,9 @@ export default {
   overflow: hidden;
 }
 .ivu-page-total {
-  float: left;
   margin-left: 15px;
 }
 .ivu-page-options {
-  float: right;
   margin-right: 15px;
 }
 /* iview更改部分 */

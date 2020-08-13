@@ -678,11 +678,9 @@ export default {
   overflow: hidden;
 }
 .ivu-page-total {
-  float: left;
   margin-left: 15px;
 }
 .ivu-page-options {
-  float: right;
   margin-right: 15px;
 }
 /* iview更改部分 */
