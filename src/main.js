@@ -190,11 +190,11 @@ let menus = [
     'componentURL': 'container/MainOne',
     'children': [
       { 'componentURL': 'ground/waterLevel', 'name': '水位监测', 'icon': 'ios-cube-outline', 'menuId': 'waterLevel' },
-      { 'componentURL': 'ground/flow', 'name': '流量监测', 'icon': 'ios-pin-outline', 'menuId': 'flow' },
+      { 'componentURL': 'ground/flow', 'name': '流量监测', 'icon': 'ios-pulse-outline', 'menuId': 'flow' },
       { 'componentURL': 'ground/soil', 'name': '墒情监测', 'icon': 'ios-podium-outline', 'menuId': 'soil' },
-      { 'componentURL': 'ground/rainfall', 'name': '降雨监测', 'icon': 'ios-person-outline', 'menuId': 'rainfall' },
-      { 'componentURL': 'ground/base', 'name': '基础信息', 'icon': 'ios-person-outline', 'menuId': 'base' },
-      { 'componentURL': 'ground/datareport', 'name': '数据报告', 'icon': 'ios-person-outline', 'menuId': 'datareport' }
+      { 'componentURL': 'ground/rainfall', 'name': '降雨监测', 'icon': 'ios-rainy-outline', 'menuId': 'rainfall' },
+      { 'componentURL': 'ground/base', 'name': '基础信息', 'icon': 'ios-browsers-outline', 'menuId': 'base' },
+      { 'componentURL': 'ground/datareport', 'name': '数据报告', 'icon': 'ios-calendar-outline', 'menuId': 'datareport' }
     ]
   }
 ]
