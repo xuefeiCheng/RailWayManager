@@ -503,7 +503,7 @@ export default {
               }
             },
             axisLabel: {
-              formatter: '{value} ml'
+              formatter: '{value} mm'
             }
           },
           {
@@ -521,7 +521,7 @@ export default {
               }
             },
             axisLabel: {
-              formatter: '{value} ml'
+              formatter: '{value} %'
             }
           },
           {
@@ -539,7 +539,7 @@ export default {
               }
             },
             axisLabel: {
-              formatter: '{value} ml'
+              formatter: '{value} m³/h'
             }
           }
         ],
