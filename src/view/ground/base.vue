@@ -147,7 +147,7 @@ export default {
       search: {
         name: ''
       },
-      moshi: false,
+      moshi: true,
       msgModal: false,
       editform: {
         gongdian: '',
@@ -463,7 +463,7 @@ export default {
   top:85px;
   right:0px;
   background:#1567f4;
-  z-index:999;
+  z-index:888;
   color:#fff;
   padding:10px;
   border-radius: 10px 0 0 10px;
