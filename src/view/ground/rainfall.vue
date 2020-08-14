@@ -176,7 +176,8 @@ export default {
                           }
                           this.chartsSeries.push({
                             name: txt,
-                            type: txt === '降雨量' ? 'bar' : 'line',
+                            // type: txt === '降雨量' ? 'bar' : 'line',
+                            type: 'line',
                             showName: txt,
                             yAxisIndex: yAxisIndex,
                             id: id,
