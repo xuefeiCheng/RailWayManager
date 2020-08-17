@@ -85,6 +85,7 @@ export default {
       step: 0, // 翻页步长
       custType: '', // 自定义图表参数类型
       baseType: '2', // 本页面必要类型
+      baseCount: 1,
       selectModal: false, // 图表参数弹框
       chartsSeries: [], // 动态变化的图表series
       selectcolumns: [
@@ -198,6 +199,15 @@ export default {
                           })
                         }
                       } else {
+                        if (this.baseCount > 4) { // 同类数据最多选择4个
+                          this.$Message.error('同类数据选择已超过上限')// 勾选状态更新为之前状态
+                          this.$nextTick(() => {
+                            this.$refs.test.$refs.tbody.objData[params.index]._isChecked = !val
+                          })
+                          return false
+                        } else {
+                          this.baseCount += 1
+                        }
                         // 新增基础类型数据
                         // 绘制 基础类型数据 异步请求数据
                         this.chartsSeries.push({
@@ -227,6 +237,9 @@ export default {
                       // 删除操作
                       if (custType !== this.baseType) {
                         this.custType = '' // 删除自定义数据 处理前端保存数据
+                      } else {
+                        this.baseCount -= 1
+                        console.log(this.baseCount)
                       }
                       this.chartsSeries.map((val, index) => {
                         if (val.id === id) {

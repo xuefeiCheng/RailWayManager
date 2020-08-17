@@ -85,6 +85,7 @@ export default {
       step: 0, // 翻页步长
       custType: '', // 自定义图表参数类型
       baseType: '3', // 本页面必要类型
+      baseCount: 1, // 必要类型选择数据数
       selectModal: false, // 图表参数弹框
       chartsSeries: [], // 动态变化的图表series
       selectcolumns: [
@@ -176,8 +177,7 @@ export default {
                           }
                           this.chartsSeries.push({
                             name: txt,
-                            // type: txt === '降雨量' ? 'bar' : 'line',
-                            type: 'line',
+                            type: txt === '降雨量' ? 'bar' : 'line',
                             showName: txt,
                             yAxisIndex: yAxisIndex,
                             id: id,
@@ -199,11 +199,20 @@ export default {
                           })
                         }
                       } else {
+                        if (this.baseCount > 4) { // 同类数据最多选择4个
+                          this.$Message.error('同类数据选择已超过上限')// 勾选状态更新为之前状态
+                          this.$nextTick(() => {
+                            this.$refs.test.$refs.tbody.objData[params.index]._isChecked = !val
+                          })
+                          return false
+                        } else {
+                          this.baseCount += 1
+                        }
                         // 新增基础类型数据
                         // 绘制 基础类型数据 异步请求数据
                         this.chartsSeries.push({
                           name: '降雨量',
-                          type: 'line',
+                          type: 'bar',
                           showName: Math.ceil(Math.random() * 100),
                           yAxisIndex: 0,
                           id: id,
@@ -228,6 +237,9 @@ export default {
                       // 删除操作
                       if (custType !== this.baseType) {
                         this.custType = '' // 删除自定义数据 处理前端保存数据
+                      } else {
+                        this.baseCount -= 1
+                        console.log(this.baseCount)
                       }
                       this.chartsSeries.map((val, index) => {
                         if (val.id === id) {
@@ -386,7 +398,7 @@ export default {
             cellid: '2020-03-16 14:31:25',
             lacid: '山顶村1#泉眼水位',
             poistion: '125.3',
-            type: '1',
+            type: '3',
             style: '1',
             id: 2
           },
@@ -395,7 +407,7 @@ export default {
             cellid: '2020-03-18 14:31:25',
             lacid: '1#机井水位测点',
             poistion: '152.3',
-            type: '2',
+            type: '3',
             style: '2',
             id: 3
           },
@@ -413,7 +425,7 @@ export default {
             cellid: '2020-03-20 10:32:25',
             lacid: '厦门',
             poistion: '36.2',
-            type: '4',
+            type: '3',
             style: '1',
             id: 5
           },
@@ -422,7 +434,7 @@ export default {
             cellid: '2020-03-28 14:31:25',
             lacid: '泉州',
             poistion: '12.2',
-            type: '1',
+            type: '3',
             style: '1',
             id: 6
           }
@@ -549,7 +561,7 @@ export default {
         series: data.length > 0 ? data : [
           {
             name: '降雨量',
-            type: 'line',
+            type: 'bar',
             showName: '名称1',
             id: 1,
             data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3],
