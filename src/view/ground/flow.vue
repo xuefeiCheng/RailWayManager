@@ -465,11 +465,11 @@ export default {
       this.selectpage.total = data.count
       this.loading = false
       this.drawChart('char', [])
-      this.axios.get('/getWaterLevelData').then((res) => {
-        if (res.code === 200) {
-          console.log(res)
-        }
-      })
+      // this.axios.get('/getWaterLevelData').then((res) => {
+      //   if (res.code === 200) {
+      //     console.log(res)
+      //   }
+      // })
     },
     drawChart (id, data) {
       let charts = this.$echarts.init(document.getElementById(id))
