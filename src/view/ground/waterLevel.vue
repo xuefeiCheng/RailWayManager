@@ -1,7 +1,13 @@
 <template>
   <div class="classify flex space-between border-none" ref="divWidth">
     <div class="box-left flex flex-direction-coloum space-between">
-      <div class="box-left-top border-normal Relative">
+      <div class="box-left-top border-normal Relative" v-show="gather">
+        <div class="box-content flex">
+          <div id="pie" style="width:50%;height:100%"></div>
+          <div id="bar" style="width:50%;height:100%"></div>
+        </div>
+      </div>
+      <div class="box-left-top border-normal Relative" v-show="!gather">
         <div class="arrow arrow-left" @click="handleSearch('forward')"><span class="iconfont icon-icon-test"></span></div>
         <div class="box-content" id="char"></div>
         <div class="arrow arrow-right" :class="step === 0 ? 'arrow-disable' : ''" @click="handleSearch('backward')"><span class="iconfont icon-icon-test1"></span></div>
@@ -10,17 +16,32 @@
         <div class="box-content">
           <Form :model="search" :label-width="80">
             <Row>
-              <Col span="8">
+              <Col span="4">
+                <FormItem label="标段">
+                  <Select v-model="search.biaoduan">
+                    <Option value="1">全部</Option>
+                    <Option value="2">标段1</Option>
+                  </Select>
+                </FormItem>
+              </Col>
+              <Col span="4">
                 <FormItem label="站点名称">
                   <Input v-model="search.psoname" placeholder="请输入要查询的站点名称..."></Input>
                 </FormItem>
               </Col>
-              <Col span="8">
+              <Col span="4">
                 <FormItem label="统计类型">
                   <Select v-model="search.type">
-                    <Option value="1">日均值</Option>
-                    <Option value="2">小时值</Option>
+                    <Option value="1">月均值</Option>
+                    <Option value="2">日均值</Option>
+                    <Option value="3">小时值</Option>
                   </Select>
+                </FormItem>
+              </Col>
+              <Col span="4">
+                <FormItem label="查询时间">
+                  <DatePicker type="daterange" placement="bottom-end" :options="options" placeholder="请选择想要查询的时间段"
+                    style="width: 100%;" show-week-numbers @on-change="timeChange" v-model="search.time"></DatePicker>
                 </FormItem>
               </Col>
               <Col span="8">
@@ -62,6 +83,7 @@ import {createColorCode, GetDateStrByF, GetDateStrByBF} from '@/utils/methods'
 export default {
   data () {
     return {
+      gather: true, // 汇总图表 是否展示
       colors: [
         '#2F9323',
         '#D9B63A',
@@ -77,8 +99,10 @@ export default {
         '#F7393C'],
       maxWidth: 0,
       search: {
+        biaoduan: '1', // 标段选择
         psoname: '',
-        type: '1'
+        type: '1',
+        time: [new Date(GetDateStrByF(0, ',')), new Date(GetDateStrByF(0, ','))]
       },
       startTime: new Date(GetDateStrByF(-7, '/')),
       endTime: new Date(GetDateStrByF(0, '/')),
@@ -354,6 +378,11 @@ export default {
     draw (data) {
       console.log(data)
       alert('双击了')
+      this.gather = false
+      this.$nextTick(() => {
+        // 绘制默认数据
+        this.drawChart('char', [])
+      })
     },
     cancel (name) { // 复选框全部重置为 false
       // 设置已勾选项为空或者勾选true
@@ -444,12 +473,131 @@ export default {
       this.page.total = data.count
       this.selectpage.total = data.count
       this.loading = false
-      this.drawChart('char', [])
+      this.drawPie('pie')
+      this.drawTop10('bar')
       // this.axios.get('/getWaterLevelData').then((res) => {
       //   if (res.code === 200) {
       //     console.log(res)
       //   }
       // })
+    },
+    drawPie (id) {
+      let charts = this.$echarts.init(document.getElementById(id))
+      charts.clear()
+      let option = {
+        title: {
+          text: '点位变化情况汇总',
+          left: 'left',
+          top: 20
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '数据 <br/>{b} : {c}个 ({d}%)'
+        },
+        series: [{
+          name: '点位变化情况汇总',
+          type: 'pie',
+          radius: '55%',
+          center: ['50%', '50%'],
+          data: [{
+            value: 210,
+            name: '均值上升点位'
+          },
+          {
+            value: 235,
+            name: '均值下降点位'
+          }
+          ],
+          roseType: 'radius',
+          label: {
+            color: '#888',
+            formatter: '{b} : {d}%'
+          },
+          labelLine: {
+            lineStyle: {
+              color: '#888'
+            }
+          },
+          itemStyle: {
+            normal: {
+              color: function (params) {
+                var colorList = ['#00ff99', '#33ccff', '#388df6', '#ffff99', '#00ffcc']
+                return colorList[params.dataIndex % colorList.length]
+              }
+            }
+          },
+          animationType: 'scale',
+          animationEasing: 'elasticOut',
+          animationDelay: function (idx) {
+            return Math.random() * 200
+          }
+        }]
+      }
+      charts.setOption(option, true)
+      this.chartsSeries = charts.getOption().series
+      window.addEventListener('resize', function () {
+        charts.resize()
+      })
+    },
+    drawTop10 (id) {
+      let charts = this.$echarts.init(document.getElementById(id))
+      charts.clear()
+      const colors = ['#5793f3', '#d14a61', '#9E87FF', '#73DDFF', '#fe9a8b', '#F56948', '#9E87FF']
+      let option = {
+        title: {
+          text: '水位下降幅度top10',
+          left: 'left',
+          top: 20
+        },
+        color: colors,
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {type: 'cross'},
+          formatter: '{b} <br/>下降幅度 : {c}%'
+        },
+        grid: {
+          y: 100
+        },
+        xAxis: [
+          {
+            type: 'category',
+            axisTick: {
+              alignWithLabel: true
+            },
+            data: ['测点1', '测点2', '测点3', '测点4', '测点5', '测点6', '测点7', '测点8', '测点9', '测点10']
+          }
+        ],
+        yAxis: [
+          {
+            type: 'value',
+            name: '幅度',
+            position: 'left',
+            axisLine: {
+              lineStyle: {
+                color: colors[3]
+              }
+            },
+            axisLabel: {
+              formatter: '{value} %'
+            }
+          }
+        ],
+        series: [
+          {
+            name: '下降幅度',
+            type: 'bar',
+            id: 1,
+            data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0],
+            color: colors[3]
+          }
+        ]
+      }
+      // let yAxis = charts.getOption().yAxis
+      charts.setOption(option, true)
+      this.chartsSeries = charts.getOption().series
+      window.addEventListener('resize', function () {
+        charts.resize()
+      })
     },
     drawChart (id, data) {
       let charts = this.$echarts.init(document.getElementById(id))
@@ -593,7 +741,10 @@ export default {
         charts.resize()
       })
     },
-    handleReset () {}
+    handleReset () {
+      // 展示 汇总 图表
+      this.gather = true
+    }
   }
 }
 </script>
