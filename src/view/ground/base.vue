@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="classify" ref="divWidth">
-    <div class="moshiBtn" @click="moshi = !moshi">切换模式</div>
+    <div class="moshiBtn hidden" @click="moshi = !moshi">切换模式</div>
     <!-- 地图区域 -->
     <div class="box box-map" v-show="moshi">
       <div id="baiduMap" style="height:100%;width:100%"></div>
@@ -18,12 +18,33 @@
     <div class="box box-map" v-show="!moshi">
       <Form ref="search" :model="search" :label-width="80">
         <Row>
-          <Col span="8">
+          <Col span="4">
+            <FormItem label="标段">
+              <Select>
+                <Option value="1">全部</Option>
+                <Option value="2">标段1</Option>
+              </Select>
+            </FormItem>
+          </Col>
+          <Col span="4">
             <FormItem label="站点名称">
               <Input type="text" v-model="search.name" placeholder="请输入想要查询的站点名称" />
             </FormItem>
           </Col>
-          <Col span="12">
+          <Col span="4">
+            <FormItem label="站点类型">
+              <Select>
+                <Option value="1">全部</Option>
+              </Select>
+            </FormItem>
+          </Col>
+          <Col span="4">
+            <FormItem label="建站时间">
+              <DatePicker type="daterange" placement="bottom-end" placeholder="请选择想要查询的时间段"
+                style="width: 100%;" show-week-numbers></DatePicker>
+            </FormItem>
+          </Col>
+          <Col span="8">
             <FormItem>
               <Button type="success" icon="ios-search" class="searchBtn" @click="handleSearch">查询</Button>
               <Button type="info"  icon="ios-refresh" class="searchBtn" @click="handleReset">重置</Button>
@@ -147,7 +168,7 @@ export default {
       search: {
         name: ''
       },
-      moshi: true,
+      moshi: false,
       msgModal: false,
       editform: {
         gongdian: '',
@@ -164,13 +185,16 @@ export default {
           width: '45',
           align: 'center'
         }, {
-          title: '站点编码',
+          title: '标段',
+          key: 'biaoduan'
+        }, {
+          title: '站点名称',
           key: 'code'
         }, {
           title: '建站时间',
           key: 'createtime'
         }, {
-          title: '当前状态',
+          title: '站点类型',
           key: 'status',
           render: (h, params) => {
             let txt = ''
@@ -180,6 +204,23 @@ export default {
                 break
               case '2':
                 txt = '停用'
+                break
+              default:
+                txt = ''
+            }
+            return h('span', txt)
+          }
+        }, {
+          title: '当前状态',
+          key: 'status',
+          render: (h, params) => {
+            let txt = ''
+            switch (params.row.status) {
+              case '1':
+                txt = '环境'
+                break
+              case '2':
+                txt = '地下水'
                 break
               default:
                 txt = ''
@@ -212,17 +253,17 @@ export default {
                     this.msgModal = true
                   }
                 }
-              }, '编辑'),
-              h('Button', {
-                props: {
-                  type: 'warning',
-                  size: 'small',
-                  disabled: (params.row.status === '1')
-                },
-                on: {
-                  click: () => {}
-                }
-              }, '删除')
+              }, '详情')
+              // h('Button', {
+              //   props: {
+              //     type: 'warning',
+              //     size: 'small',
+              //     disabled: (params.row.status === '1')
+              //   },
+              //   on: {
+              //     click: () => {}
+              //   }
+              // }, '删除')
             ])
           }
         }
@@ -230,6 +271,7 @@ export default {
       tableData: [
         {
           'code': '名称',
+          'biaoduan': '标段1',
           'status': '1',
           'createtime': '2020/08/10',
           'count': 2,
@@ -237,6 +279,7 @@ export default {
         },
         {
           'code': '名1称',
+          'biaoduan': '标段1',
           'status': '2',
           'createtime': '2020/08/10',
           'count': 2,
