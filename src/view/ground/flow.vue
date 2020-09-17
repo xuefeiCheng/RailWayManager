@@ -1,26 +1,63 @@
 <template>
   <div class="classify flex space-between border-none" ref="divWidth">
     <div class="box-left flex flex-direction-coloum space-between">
-      <div class="box-left-top border-normal Relative">
-        <div class="arrow arrow-left" @click="handleSearch('forward')"><span class="iconfont icon-icon-test"></span></div>
-        <div class="box-content" id="char"></div>
-        <div class="arrow arrow-right" :class="step === 0 ? 'arrow-disable' : ''" @click="handleSearch('backward')"><span class="iconfont icon-icon-test1"></span></div>
+      <div class="box-left-top border-normal Relative" v-show="gather">
+        <div class="box-content flex">
+          <div id="pie" style="width:50%;height:100%"></div>
+          <div id="bar" style="width:50%;height:100%"></div>
+        </div>
+      </div>
+      <div class="box-left-top border-normal flex space-between" v-show="!gather">
+        <div class="tubiao Relative">
+          <div class="arrow arrow-left" @click="handleSearch('forward')"><span class="iconfont icon-icon-test"></span></div>
+          <div class="box-content" id="char"></div>
+          <div class="arrow arrow-right" :class="step === 0 ? 'arrow-disable' : ''" @click="handleSearch('backward')"><span class="iconfont icon-icon-test1"></span></div>
+
+          <div class="radio-box flex align-items-center justify-content-center">
+            <RadioGroup v-model="charRadio">
+              <Radio label="小时"></Radio>
+              <Radio label="日均"></Radio>
+              <Radio label="月均"></Radio>
+            </RadioGroup>
+          </div>
+        </div>
+
+        <div class="image" style="overflow:hidden">
+          <img src="../../../static/img/railway/u1511.jpg" alt="" style="width:100%;">
+          <div>
+            降雨强度是指在某一历时内的平均降落量。它可以以用单位时间内的降雨深度表示，也可以用单位时间内的面积上的降雨体积表示，降雨强度=降雨量/降雨历时。降雨强度是描述暴雨特征的重要指标，强度越大，雨愈猛烈。计算时特别有意义的是相应于某一历时的最大平均降雨强度，显然，所取的历时越短则求得的降雨强度愈大。
+          </div>
+        </div>
       </div>
       <div class="box-left-bottom border-normal">
         <div class="box-content">
           <Form :model="search" :label-width="80">
             <Row>
-              <Col span="8">
+              <Col span="4">
+                <FormItem label="标段">
+                  <Select v-model="search.biaoduan">
+                    <Option value="1">全部</Option>
+                    <Option value="2">标段1</Option>
+                  </Select>
+                </FormItem>
+              </Col>
+              <Col span="4">
                 <FormItem label="站点名称">
                   <Input v-model="search.psoname" placeholder="请输入要查询的站点名称..."></Input>
                 </FormItem>
               </Col>
-              <Col span="8">
+              <Col span="4">
                 <FormItem label="统计类型">
                   <Select v-model="search.type">
                     <Option value="1">日均值</Option>
                     <Option value="2">小时值</Option>
                   </Select>
+                </FormItem>
+              </Col>
+              <Col span="4">
+                <FormItem label="查询时间">
+                  <DatePicker type="daterange" placement="bottom-end" :options="options" placeholder="请选择想要查询的时间段"
+                    style="width: 100%;" show-week-numbers @on-change="timeChange" v-model="search.time"></DatePicker>
                 </FormItem>
               </Col>
               <Col span="8">
@@ -62,6 +99,12 @@ import {createColorCode, GetDateStrByF, GetDateStrByBF} from '@/utils/methods'
 export default {
   data () {
     return {
+      gather: true, // 汇总图表 是否展示
+      options: {
+        disabledDate (date) {
+          return date && date.valueOf() > Date.now()
+        }
+      },
       colors: [
         '#2F9323',
         '#D9B63A',
@@ -77,8 +120,12 @@ export default {
         '#F7393C'],
       maxWidth: 0,
       search: {
+        biaoduan: '1', // 标段选择
         psoname: '',
-        type: '1'
+        type: '1',
+        time: ['', ''],
+        startTime: '',
+        endTime: ''
       },
       startTime: new Date(GetDateStrByF(-7, '/')),
       endTime: new Date(GetDateStrByF(0, '/')),
@@ -268,6 +315,9 @@ export default {
           width: '45',
           align: 'center'
         }, {
+          title: '标段',
+          key: 'biaoduan'
+        }, {
           title: '记录时间',
           key: 'cellid'
         }, {
@@ -355,7 +405,8 @@ export default {
         size: 5,
         current: 1
       },
-      pageSizeOpts: [5, 10, 20]
+      pageSizeOpts: [5, 10, 20],
+      charRadio: '月均'
     }
   },
   mounted () {
@@ -363,12 +414,23 @@ export default {
     this.init()
   },
   methods: {
+    timeChange (value) {
+      let startTime = value[0].substr(0, 4) + value[0].substr(5, 2) + value[0].substr(8, 2) + '000000'
+      let endTime = value[1].substr(0, 4) + value[1].substr(5, 2) + value[1].substr(8, 2) + '235959'
+
+      this.search.startTime = startTime
+      this.search.endTime = endTime
+    },
     test () {
       alert('点击了我')
     },
     draw (data) {
       console.log(data)
-      alert('双击了')
+      this.gather = false
+      this.$nextTick(() => {
+        // 绘制默认数据
+        this.drawChart('char', [])
+      })
     },
     cancel (name) { // 复选框全部重置为 false
       // 设置已勾选项为空或者勾选true
@@ -413,6 +475,7 @@ export default {
         list: [
           {
             psoname: '茅坪山隧道进口测站',
+            biaoduan: 'CZSG-1',
             cellid: '2020-03-16 14:31:25',
             lacid: '山顶村1#泉眼水位',
             poistion: '125.3',
@@ -422,6 +485,7 @@ export default {
           },
           {
             psoname: '高坪隧道1#斜井测站',
+            biaoduan: 'CZSG-1',
             cellid: '2020-03-18 14:31:25',
             lacid: '1#机井水位测点',
             poistion: '152.3',
@@ -431,6 +495,7 @@ export default {
           },
           {
             psoname: '茅坪山隧道进口测站',
+            biaoduan: 'CZSG-1',
             cellid: '2020-03-19 11:31:25',
             lacid: '福州',
             poistion: '120.3',
@@ -440,6 +505,7 @@ export default {
           },
           {
             psoname: '茅坪山隧道进口测站',
+            biaoduan: 'CZSG-1',
             cellid: '2020-03-20 10:32:25',
             lacid: '厦门',
             poistion: '36.2',
@@ -449,6 +515,7 @@ export default {
           },
           {
             psoname: '茅坪山隧道进口测站',
+            biaoduan: 'CZSG-2',
             cellid: '2020-03-28 14:31:25',
             lacid: '泉州',
             poistion: '12.2',
@@ -464,12 +531,132 @@ export default {
       this.page.total = data.count
       this.selectpage.total = data.count
       this.loading = false
-      this.drawChart('char', [])
+      this.drawPie('pie')
+      this.drawTop10('bar')
+      // this.drawChart('char', [])
       // this.axios.get('/getWaterLevelData').then((res) => {
       //   if (res.code === 200) {
       //     console.log(res)
       //   }
       // })
+    },
+    drawPie (id) {
+      let charts = this.$echarts.init(document.getElementById(id))
+      charts.clear()
+      let option = {
+        title: {
+          text: '点位变化情况汇总',
+          left: 'left',
+          top: 20
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '数据 <br/>{b} : {c}个 ({d}%)'
+        },
+        series: [{
+          name: '点位变化情况汇总',
+          type: 'pie',
+          radius: '55%',
+          center: ['50%', '50%'],
+          data: [{
+            value: 210,
+            name: '均值上升点位'
+          },
+          {
+            value: 235,
+            name: '均值下降点位'
+          }
+          ],
+          roseType: 'radius',
+          label: {
+            color: '#888',
+            formatter: '{b} : {d}%'
+          },
+          labelLine: {
+            lineStyle: {
+              color: '#888'
+            }
+          },
+          itemStyle: {
+            normal: {
+              color: function (params) {
+                var colorList = ['#00ff99', '#33ccff', '#388df6', '#ffff99', '#00ffcc']
+                return colorList[params.dataIndex % colorList.length]
+              }
+            }
+          },
+          animationType: 'scale',
+          animationEasing: 'elasticOut',
+          animationDelay: function (idx) {
+            return Math.random() * 200
+          }
+        }]
+      }
+      charts.setOption(option, true)
+      this.chartsSeries = charts.getOption().series
+      window.addEventListener('resize', function () {
+        charts.resize()
+      })
+    },
+    drawTop10 (id) {
+      let charts = this.$echarts.init(document.getElementById(id))
+      charts.clear()
+      const colors = ['#5793f3', '#d14a61', '#9E87FF', '#73DDFF', '#fe9a8b', '#F56948', '#9E87FF']
+      let option = {
+        title: {
+          text: '流量增大幅度top10',
+          left: 'left',
+          top: 20
+        },
+        color: colors,
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {type: 'cross'},
+          formatter: '{b} <br/>增大幅度 : {c}%'
+        },
+        grid: {
+          y: 100
+        },
+        xAxis: [
+          {
+            type: 'category',
+            axisTick: {
+              alignWithLabel: true
+            },
+            data: ['测点1', '测点2', '测点3', '测点4', '测点5', '测点6', '测点7', '测点8', '测点9', '测点10']
+          }
+        ],
+        yAxis: [
+          {
+            type: 'value',
+            name: '幅度',
+            position: 'left',
+            axisLine: {
+              lineStyle: {
+                color: colors[3]
+              }
+            },
+            axisLabel: {
+              formatter: '{value} %'
+            }
+          }
+        ],
+        series: [
+          {
+            name: '下降幅度',
+            type: 'bar',
+            id: 1,
+            data: [90, 85, 70, 65, 52, 43, 32, 21, 15, 6],
+            color: colors[3]
+          }
+        ]
+      }
+      // let yAxis = charts.getOption().yAxis
+      charts.setOption(option, true)
+      this.chartsSeries = charts.getOption().series
+      window.addEventListener('resize', function () {
+        charts.resize()
+      })
     },
     drawChart (id, data) {
       let charts = this.$echarts.init(document.getElementById(id))
@@ -494,6 +681,7 @@ export default {
           }
         },
         legend: {
+          show: false,
           data: ['水位', '降雨量', '墒情', '流量'],
           x: 'center',
           y: 'bottom'
@@ -613,7 +801,10 @@ export default {
         charts.resize()
       })
     },
-    handleReset () {}
+    handleReset () {
+      // 展示 汇总 图表
+      this.gather = true
+    }
   }
 }
 </script>
@@ -632,6 +823,12 @@ export default {
 .space-between{
   justify-content: space-between;
 }
+.justify-content-center {
+  justify-content: center;
+}
+.align-items-center {
+  align-items: center;
+}
 .flex-direction-coloum {flex-direction:column;}
 .border-normal{
   border: 1px solid #dcdee2;
@@ -646,6 +843,14 @@ export default {
 /* 布局部分 */
 .box-left{width: 100%;height: 100%;}
 .box-left-top{height: 49%;}
+.box-left-top .tubiao {
+  flex: 0 0 70%;
+}
+.box-left-top .image {
+  flex: 0 0 25%;
+  box-sizing: border-box;
+  padding: 10px;
+}
 .box-left-bottom{height: 49%;}
 .box-right{width: 23%;}
 .box-title {height: 40px;line-height: 40px;padding-left: 10px;}
@@ -683,6 +888,14 @@ export default {
 .arrow-disable:hover {
   color: #fff;
   background: #eee;
+}
+/* 图表下的单选框 */
+.radio-box {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  left: 0;
+  height: 30px;
 }
 /*面板分割*/
 .classify {
