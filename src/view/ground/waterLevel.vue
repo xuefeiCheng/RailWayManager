@@ -7,11 +7,26 @@
           <div id="bar" style="width:50%;height:100%"></div>
         </div>
       </div>
-      <div class="box-left-top border-normal Relative" v-show="!gather">
-        <div class="arrow arrow-left" @click="handleSearch('forward')"><span class="iconfont icon-icon-test"></span></div>
-        <div class="box-content" id="char"></div>
-        <div class="arrow arrow-right" :class="step === 0 ? 'arrow-disable' : ''" @click="handleSearch('backward')"><span class="iconfont icon-icon-test1"></span></div>
-      </div>
+      <div class="box-left-top border-normal flex space-between" v-show="!gather">
+        <div class="tubiao Relative">
+          <div class="arrow arrow-left" @click="handleSearch('forward')"><span class="iconfont icon-icon-test"></span></div>
+          <div class="box-content" id="char"></div>
+          <div class="arrow arrow-right" :class="step === 0 ? 'arrow-disable' : ''" @click="handleSearch('backward')"><span class="iconfont icon-icon-test1"></span></div>
+          <div class="radio-box flex align-items-center justify-content-center">
+            <RadioGroup v-model="charRadio">
+              <Radio label="小时"></Radio>
+              <Radio label="日均"></Radio>
+              <Radio label="月均"></Radio>
+            </RadioGroup>
+          </div>
+        </div>
+        <div class="image" style="overflow:hidden">
+          <img src="../../../static/img/railway/u1339.png" alt="" style="width:100%;">
+          <div>
+            降雨强度是指在某一历时内的平均降落量。它可以以用单位时间内的降雨深度表示，也可以用单位时间内的面积上的降雨体积表示，降雨强度=降雨量/降雨历时。降雨强度是描述暴雨特征的重要指标，强度越大，雨愈猛烈。计算时特别有意义的是相应于某一历时的最大平均降雨强度，显然，所取的历时越短则求得的降雨强度愈大。
+          </div>
+        </div>
+        </div>
       <div class="box-left-bottom border-normal">
         <div class="box-content">
           <Form :model="search" :label-width="80">
@@ -84,6 +99,11 @@ export default {
   data () {
     return {
       gather: true, // 汇总图表 是否展示
+      options: {
+        disabledDate (date) {
+          return date && date.valueOf() > Date.now()
+        }
+      },
       colors: [
         '#2F9323',
         '#D9B63A',
@@ -102,7 +122,10 @@ export default {
         biaoduan: '1', // 标段选择
         psoname: '',
         type: '1',
-        time: [new Date(GetDateStrByF(0, ',')), new Date(GetDateStrByF(0, ','))]
+        // time: [new Date(GetDateStrByF(-7, ',')), new Date(GetDateStrByF(0, ','))],
+        time: ['', ''],
+        startTime: '',
+        endTime: ''
       },
       startTime: new Date(GetDateStrByF(-7, '/')),
       endTime: new Date(GetDateStrByF(0, '/')),
@@ -292,6 +315,9 @@ export default {
           width: '45',
           align: 'center'
         }, {
+          title: '标段',
+          key: 'biaoduan'
+        }, {
           title: '记录时间',
           key: 'cellid'
         }, {
@@ -304,13 +330,16 @@ export default {
           title: '水位绝对值(m)',
           key: 'poistion'
         }, {
-          title: '初始偏差(m)',
+          title: '水位相对值(m)',
           key: 'poistion'
         }, {
-          title: '对上次变化(m)',
+          title: '相对下限插值(m)',
           key: 'poistion'
         }, {
-          title: '累计变化(m)',
+          title: '背景值(下/上限)(m)',
+          key: 'key1'
+        }, {
+          title: '阶段变化(m)',
           key: 'poistion'
         }, {
           title: '操作',
@@ -364,7 +393,8 @@ export default {
         size: 5,
         current: 1
       },
-      pageSizeOpts: [5, 10, 20]
+      pageSizeOpts: [5, 10, 20],
+      charRadio: '月均'
     }
   },
   mounted () {
@@ -372,12 +402,18 @@ export default {
     this.init()
   },
   methods: {
+    timeChange (value) {
+      let startTime = value[0].substr(0, 4) + value[0].substr(5, 2) + value[0].substr(8, 2) + '000000'
+      let endTime = value[1].substr(0, 4) + value[1].substr(5, 2) + value[1].substr(8, 2) + '235959'
+
+      this.search.startTime = startTime
+      this.search.endTime = endTime
+    },
     test () {
       alert('点击了我')
     },
     draw (data) {
       console.log(data)
-      alert('双击了')
       this.gather = false
       this.$nextTick(() => {
         // 绘制默认数据
@@ -396,6 +432,10 @@ export default {
       // 查询条件：站点名称 类型 page pageSize [测点id, 测点id] 时间
       // 上一页 时间范围向前 +7
       // 下一页 时间范围向后 +7 且不能超过今天
+
+      // 翻半页
+      // 上一页 时间范围向前 + 3 开始、结束+3
+      // 下一页 时间范围向后 +3 且不能超过今天
       if (type === 'forward') {
         this.step -= 7
         this.endTime = GetDateStrByBF(this.startTime, 0, '/')
@@ -427,41 +467,51 @@ export default {
         list: [
           {
             psoname: '茅坪山隧道进口测站',
+            biaoduan: 'CZSG-1',
             cellid: '2020-03-16 14:31:25',
             lacid: '山顶村1#泉眼水位',
             poistion: '125.3',
+            key1: '110.35/126.75',
             type: '1',
             id: 2
           },
           {
             psoname: '高坪隧道1#斜井测站',
+            biaoduan: 'CZSG-1',
             cellid: '2020-03-18 14:31:25',
             lacid: '1#机井水位测点',
             poistion: '152.3',
+            key1: '110.35/126.75',
             type: '2',
             id: 3
           },
           {
             psoname: '茅坪山隧道进口测站',
+            biaoduan: 'CZSG-1',
             cellid: '2020-03-19 11:31:25',
             lacid: '福州',
             poistion: '120.3',
+            key1: '110.35/126.75',
             type: '3',
             id: 4
           },
           {
             psoname: '茅坪山隧道进口测站',
+            biaoduan: 'CZSG-2',
             cellid: '2020-03-20 10:32:25',
             lacid: '厦门',
             poistion: '36.2',
+            key1: '110.35/126.75',
             type: '4',
             id: 5
           },
           {
             psoname: '茅坪山隧道进口测站',
+            biaoduan: 'CZSG-2',
             cellid: '2020-03-28 14:31:25',
             lacid: '泉州',
             poistion: '12.2',
+            key1: '110.35/126.75',
             type: '1',
             id: 6
           }
@@ -587,7 +637,7 @@ export default {
             name: '下降幅度',
             type: 'bar',
             id: 1,
-            data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0],
+            data: [90, 85, 70, 65, 52, 43, 32, 21, 15, 6],
             color: colors[3]
           }
         ]
@@ -622,6 +672,7 @@ export default {
           }
         },
         legend: {
+          show: false,
           data: ['水位', '降雨量', '墒情', '流量'],
           x: 'center',
           y: 'bottom'
@@ -763,6 +814,12 @@ export default {
 .space-between{
   justify-content: space-between;
 }
+.justify-content-center {
+  justify-content: center;
+}
+.align-items-center {
+  align-items: center;
+}
 .flex-direction-coloum {flex-direction:column;}
 .border-normal{
   border: 1px solid #dcdee2;
@@ -777,6 +834,14 @@ export default {
 /* 布局部分 */
 .box-left{width: 100%;height: 100%;}
 .box-left-top{height: 49%;}
+.box-left-top .tubiao {
+  flex: 0 0 70%;
+}
+.box-left-top .image {
+  flex: 0 0 25%;
+  box-sizing: border-box;
+  padding: 10px;
+}
 .box-left-bottom{height: 49%;}
 .box-right{width: 23%;}
 .box-title {height: 40px;line-height: 40px;padding-left: 10px;}
@@ -814,6 +879,14 @@ export default {
 .arrow-disable:hover {
   color: #fff;
   background: #eee;
+}
+/* 图表下的单选框 */
+.radio-box {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  left: 0;
+  height: 30px;
 }
 /*面板分割*/
 .classify {
