@@ -8,8 +8,8 @@
       { "componentURL": "ground/flow", "name": "流量监测", "icon": "ios-pulse-outline", "menuId": "flow" },
       { "componentURL": "ground/soil", "name": "墒情监测", "icon": "ios-podium-outline", "menuId": "soil" },
       { "componentURL": "ground/rainfall", "name": "降雨监测", "icon": "ios-rainy-outline", "menuId": "rainfall" },
-      { "componentURL": "ground/base", "name": "基础信息", "icon": "ios-browsers-outline", "menuId": "base" },
-      { "componentURL": "ground/datareport", "name": "数据报告", "icon": "ios-calendar-outline", "menuId": "datareport" }
+      { "componentURL": "ground/base", "name": "站点管理", "icon": "ios-browsers-outline", "menuId": "base" },
+      { "componentURL": "ground/datareport", "name": "监测报告", "icon": "ios-calendar-outline", "menuId": "datareport" }
     ]
   }
 ]

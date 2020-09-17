@@ -8,7 +8,18 @@
             <Input type="text" v-model="search.filename" placeholder="请输入想要查询的报告名" />
           </FormItem>
         </Col>
-        <Col span="8">
+        <Col span="4">
+          <FormItem label="监测类型">
+            <Select v-model="search.type">
+              <Option value="1">全部</Option>
+              <Option value="2">污染物监测</Option>
+              <Option value="3">生态监测</Option>
+              <Option value="4">地下水监测</Option>
+              <Option value="5">风险监测</Option>
+            </Select>
+          </FormItem>
+        </Col>
+        <Col span="4">
           <FormItem label="报告类型">
             <Select v-model="search.type">
               <Option value="1">月报</Option>
@@ -117,6 +128,32 @@ export default {
         }, {
           title: '报告名称',
           key: 'filename'
+        }, {
+          title: '监测类型',
+          key: 'type',
+          render: (h, params) => {
+            let txt = ''
+            switch (params.row.type) {
+              case '1':
+                txt = '污染物监测'
+                break
+              case '2':
+                txt = '生态监测'
+                break
+              case '3':
+                txt = '地下水监测'
+                break
+              case '4':
+                txt = '风险监测'
+                break
+              case '5':
+                txt = '其他'
+                break
+              default:
+                txt = ''
+            }
+            return h('span', txt)
+          }
         }, {
           title: '报告类型',
           key: 'type',
