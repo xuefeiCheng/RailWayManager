@@ -535,7 +535,11 @@ export default {
       sessionStore.setItemData('menus', menusData)
       store.commit('SET_NAME', name)
       Cookies.set('user-name', name)
-      this.$router.push({path: '/'})
+      if (this.login.userName === 'root' && this.login.password === 'Tlxm!@#$%') {
+        this.$router.push({path: '/'})
+      } else {
+        this.$Message.warning('账号或密码错误，请确认')
+      }
     },
     handleSubmit (name) {
       this.$refs[name].validate((valid) => {
